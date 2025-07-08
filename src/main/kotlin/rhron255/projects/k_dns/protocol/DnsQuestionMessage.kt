@@ -39,5 +39,5 @@ class DnsQuestionMessage {
         questionClass = RecordClass.fromBytes(bytes)
     }
 
-    override fun toString() = "DnsQuestionMessage{type='$questionType',class='$questionClass',questions=$questions}"
+    override fun toString() = "DnsQuestionMessage{\n$header\ntype='$questionType',class='$questionClass',\nquestions=$questions\n}"
 }
