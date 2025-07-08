@@ -79,7 +79,7 @@ class DnsHeader {
 
     override fun toString(): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.append("DnsHeader{\n")
+        stringBuilder.append("DnsHeader{")
         stringBuilder.append("queryID=$queryID,")
         stringBuilder.append("opcode=$opcode,")
         if (authoritativeAnswer) {
@@ -98,7 +98,7 @@ class DnsHeader {
         stringBuilder.append("questionCount=$questionCount,")
         stringBuilder.append("answerCount=$answerCount,")
         stringBuilder.append("recordCount=$recordCount,")
-        stringBuilder.append("additionalResourceCount=$additionalResourceCount\n}")
+        stringBuilder.append("additionalResourceCount=$additionalResourceCount}")
 
         return stringBuilder.toString()
     }
@@ -120,18 +120,31 @@ class DnsHeader {
         putShort(additionalResourceCount)
     }
 
-    fun copy() = DnsHeader(
-        queryID = queryID,
-        isQuestion = isQuestion,
-        opcode = opcode,
-        authoritativeAnswer = authoritativeAnswer,
-        truncation = truncation,
-        recursionDesired = recursionDesired,
-        recursionAvailable = recursionAvailable,
-        responseCode = responseCode,
-        questionCount = questionCount,
-        answerCount = answerCount,
-        recordCount = recordCount,
-        additionalResourceCount = additionalResourceCount,
+    fun copy(
+        queryID: Short? = null,
+        questionCount: Short? = null,
+        isQuestion: Boolean? = null,
+        opcode: DnsOpcode? = null,
+        authoritativeAnswer: Boolean? = null,
+        truncation: Boolean? = null,
+        recursionDesired: Boolean? = null,
+        recursionAvailable: Boolean? = null,
+        responseCode: DnsResponseCode? = null,
+        answerCount: Short? = null,
+        recordCount: Short? = null,
+        additionalResourceCount: Short? = null
+    ) = DnsHeader(
+        queryID ?: this.queryID,
+        questionCount ?: this.questionCount,
+        isQuestion ?: this.isQuestion,
+        opcode ?: this.opcode,
+        authoritativeAnswer ?: this.authoritativeAnswer,
+        truncation ?: this.truncation,
+        recursionDesired ?: this.recursionDesired,
+        recursionAvailable ?: this.recursionAvailable,
+        responseCode ?: this.responseCode,
+        answerCount ?: this.answerCount,
+        recordCount ?: this.recordCount,
+        additionalResourceCount ?: this.additionalResourceCount,
     )
 }
