@@ -1,5 +1,6 @@
 package rhron255.projects.k_dns.protocol
 
+import rhron255.projects.k_dns.utils.readDomainName
 import java.nio.ByteBuffer
 
 data class ResourceRecord(
@@ -17,8 +18,17 @@ data class ResourceRecord(
         private const val BINARY_HEADER_BYTE_SIZE = 10
     }
 
+    constructor(buffer: ByteBuffer) : this(
+        name = buffer.readDomainName(),
+        type = RecordType.fromBytes(buffer),
+        resourceClass = RecordClass.fromBytes(buffer),
+        ttl = buffer.getInt(),
+        rdlength = buffer.getShort(),
+        rdata = TODO("Not yet implemented - need to be implemented for each record type")
+    )
+
     fun toBytes(): ByteArray =
-        ByteBuffer.allocate(name.length + rdata.size + BINARY_HEADER_BYTE_SIZE).apply {
+        ByteBuffer.allocate(name.length + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE).apply {
             put(name.toByteArray(Charsets.US_ASCII))
             putShort(type.code)
             putShort(resourceClass.code)
