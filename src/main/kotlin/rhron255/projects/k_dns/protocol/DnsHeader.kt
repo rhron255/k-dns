@@ -123,4 +123,18 @@ class DnsHeader {
         putShort(additionalResourceCount)
     }
 
+    fun copy() = DnsHeader(
+        queryID = queryID,
+        isQuestion = isQuestion,
+        opcode = opcode,
+        authoritativeAnswer = authoritativeAnswer,
+        truncation = truncation,
+        recursionDesired = recursionDesired,
+        recursionAvailable = recursionAvailable,
+        responseCode = responseCode,
+        questionCount = questionCount,
+        answerCount = answerCount,
+        recordCount = recordCount,
+        additionalResourceCount = additionalResourceCount,
+    )
 }
