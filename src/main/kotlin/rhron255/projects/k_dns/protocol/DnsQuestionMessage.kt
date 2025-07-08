@@ -1,5 +1,6 @@
 package rhron255.projects.k_dns.protocol
 
+import rhron255.projects.k_dns.protocol.header.DnsHeader
 import rhron255.projects.k_dns.utils.getAsciiChar
 import rhron255.projects.k_dns.utils.getCurrentByte
 import rhron255.projects.k_dns.utils.skip

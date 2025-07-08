@@ -1,8 +1,5 @@
-package rhron255.projects.k_dns.protocol
+package rhron255.projects.k_dns.protocol.header
 
-import rhron255.projects.k_dns.protocol.header.DnsHeaderMasks.*
-import rhron255.projects.k_dns.protocol.header.DnsOpcode
-import rhron255.projects.k_dns.protocol.header.DnsResponseCode
 import java.nio.ByteBuffer
 import kotlin.experimental.and
 import kotlin.experimental.inv
@@ -66,13 +63,13 @@ class DnsHeader {
     constructor (byteBuffer: ByteBuffer) {
         queryID = byteBuffer.getShort()
         with(byteBuffer.getShort()) {
-            isQuestion = (this and QUERY_OR_RESPONSE.mask) == 0.toShort()
-            opcode = DnsOpcode.from((this and OPCODE.mask).toInt() shr 11)
-            authoritativeAnswer = (this and AUTHORITATIVE_ANSWER.mask) != 0.toShort()
-            truncation = (this and TRUNCATION.mask) != 0.toShort()
-            recursionDesired = (this and RECURSION_DESIRED.mask) != 0.toShort()
-            recursionAvailable = (this and RECURSION_AVAILABLE.mask) != 0.toShort()
-            responseCode = DnsResponseCode.from((this and RESPONSE_CODE.mask))
+            isQuestion = (this and DnsHeaderMasks.QUERY_OR_RESPONSE.mask) == 0.toShort()
+            opcode = DnsOpcode.from((this and DnsHeaderMasks.OPCODE.mask).toInt() shr 11)
+            authoritativeAnswer = (this and DnsHeaderMasks.AUTHORITATIVE_ANSWER.mask) != 0.toShort()
+            truncation = (this and DnsHeaderMasks.TRUNCATION.mask) != 0.toShort()
+            recursionDesired = (this and DnsHeaderMasks.RECURSION_DESIRED.mask) != 0.toShort()
+            recursionAvailable = (this and DnsHeaderMasks.RECURSION_AVAILABLE.mask) != 0.toShort()
+            responseCode = DnsResponseCode.from((this and DnsHeaderMasks.RESPONSE_CODE.mask))
         }
         questionCount = byteBuffer.getShort()
         answerCount = byteBuffer.getShort()
@@ -109,12 +106,12 @@ class DnsHeader {
     fun toBytes() = ByteBuffer.allocate(BYTES_IN_HEADER).apply {
         putShort(queryID)
         putShort(0.toShort().apply {
-            if (isQuestion) this and QUERY_OR_RESPONSE.mask.inv() else this or QUERY_OR_RESPONSE.mask
+            if (isQuestion) this and DnsHeaderMasks.QUERY_OR_RESPONSE.mask.inv() else this or DnsHeaderMasks.QUERY_OR_RESPONSE.mask
             this or (opcode.ordinal shl 11).toShort()
-            if (authoritativeAnswer) this or AUTHORITATIVE_ANSWER.mask else this and AUTHORITATIVE_ANSWER.mask.inv()
-            if (truncation) this or TRUNCATION.mask else this and TRUNCATION.mask.inv()
-            if (recursionDesired) this or RECURSION_DESIRED.mask else this and RECURSION_AVAILABLE.mask.inv()
-            if (recursionAvailable) this or RECURSION_AVAILABLE.mask else this and RECURSION_AVAILABLE.mask.inv()
+            if (authoritativeAnswer) this or DnsHeaderMasks.AUTHORITATIVE_ANSWER.mask else this and DnsHeaderMasks.AUTHORITATIVE_ANSWER.mask.inv()
+            if (truncation) this or DnsHeaderMasks.TRUNCATION.mask else this and DnsHeaderMasks.TRUNCATION.mask.inv()
+            if (recursionDesired) this or DnsHeaderMasks.RECURSION_DESIRED.mask else this and DnsHeaderMasks.RECURSION_AVAILABLE.mask.inv()
+            if (recursionAvailable) this or DnsHeaderMasks.RECURSION_AVAILABLE.mask else this and DnsHeaderMasks.RECURSION_AVAILABLE.mask.inv()
             this or (responseCode.ordinal).toShort()
         })
         putShort(questionCount)
