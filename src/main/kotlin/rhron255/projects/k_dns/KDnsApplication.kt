@@ -1,10 +1,7 @@
 package rhron255.projects.k_dns
 
 import mu.two.KotlinLogging
-import rhron255.projects.k_dns.protocol.DnsMessage
-import rhron255.projects.k_dns.protocol.RecordClass
-import rhron255.projects.k_dns.protocol.RecordType
-import rhron255.projects.k_dns.protocol.ResourceRecord
+import rhron255.projects.k_dns.protocol.*
 import rhron255.projects.k_dns.protocol.header.DnsResponseCode
 import rhron255.projects.k_dns.utils.infoPhaseLog
 import java.net.*
@@ -20,8 +17,8 @@ val testResourceRecord = ResourceRecord(
     RecordType.A,
     RecordClass.IN,
     360,
-    9,
-    listOf("0.0.0.0")
+    4,
+    listOf("\u0000\u0000\u0000\u0000")
 )
 
 private const val DNS_DATAGRAM_SIZE = 512
@@ -52,7 +49,7 @@ fun main(args: Array<String>) {
                     isQuestion = false,
                     responseCode = DnsResponseCode.NO_ERROR,
                     answerCount = 1
-                ), message.questions, listOf(testResourceRecord)
+                ), message.questions, getRecords(message.questions)
             )
 
             val size = response.toBytes().size
@@ -63,3 +60,6 @@ fun main(args: Array<String>) {
         }
     }
 }
+
+private fun getRecords(questions: List<DnsQuestion>) =
+    questions.map { testResourceRecord.copy(name = it.question) }

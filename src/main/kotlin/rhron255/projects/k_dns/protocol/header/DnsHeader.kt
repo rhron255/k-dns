@@ -29,8 +29,8 @@ class DnsHeader {
     val recursionAvailable: Boolean
     val responseCode: DnsResponseCode
     val answerCount: Short
-    val recordCount: Short
-    val additionalResourceCount: Short
+    val authorityRecordCount: Short
+    val additionalRecordCount: Short
 
     constructor(
         queryID: Short,
@@ -56,8 +56,8 @@ class DnsHeader {
         this.recursionAvailable = recursionAvailable
         this.responseCode = responseCode
         this.answerCount = answerCount
-        this.recordCount = recordCount
-        this.additionalResourceCount = additionalResourceCount
+        this.authorityRecordCount = recordCount
+        this.additionalRecordCount = additionalResourceCount
     }
 
     constructor (byteBuffer: ByteBuffer) {
@@ -73,8 +73,8 @@ class DnsHeader {
         }
         questionCount = byteBuffer.getShort()
         answerCount = byteBuffer.getShort()
-        recordCount = byteBuffer.getShort()
-        additionalResourceCount = byteBuffer.getShort()
+        authorityRecordCount = byteBuffer.getShort()
+        additionalRecordCount = byteBuffer.getShort()
     }
 
     override fun toString(): String {
@@ -97,8 +97,8 @@ class DnsHeader {
         stringBuilder.append("responseCode=$responseCode,")
         stringBuilder.append("questionCount=$questionCount,")
         stringBuilder.append("answerCount=$answerCount,")
-        stringBuilder.append("recordCount=$recordCount,")
-        stringBuilder.append("additionalResourceCount=$additionalResourceCount}")
+        stringBuilder.append("recordCount=$authorityRecordCount,")
+        stringBuilder.append("additionalResourceCount=$additionalRecordCount}")
 
         return stringBuilder.toString()
     }
@@ -116,8 +116,8 @@ class DnsHeader {
         putShort(headerBits)
         putShort(questionCount)
         putShort(answerCount)
-        putShort(recordCount)
-        putShort(additionalResourceCount)
+        putShort(authorityRecordCount)
+        putShort(additionalRecordCount)
     }.array()
 
     fun copy(
@@ -144,7 +144,7 @@ class DnsHeader {
         recursionAvailable ?: this.recursionAvailable,
         responseCode ?: this.responseCode,
         answerCount ?: this.answerCount,
-        recordCount ?: this.recordCount,
-        additionalResourceCount ?: this.additionalResourceCount,
+        recordCount ?: this.authorityRecordCount,
+        additionalResourceCount ?: this.additionalRecordCount,
     )
 }

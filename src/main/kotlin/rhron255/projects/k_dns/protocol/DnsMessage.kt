@@ -7,6 +7,8 @@ class DnsMessage {
     val header: DnsHeader
     val questions: List<DnsQuestion>
     val answers: List<ResourceRecord>
+    val authorityResourceRecords: List<ResourceRecord>
+    val additionalResourceRecords: List<ResourceRecord>
 
     constructor(byteBuffer: ByteBuffer) {
         header = DnsHeader(byteBuffer)
@@ -20,17 +22,31 @@ class DnsMessage {
                 add(ResourceRecord(byteBuffer))
             }
         }
+        authorityResourceRecords = buildList {
+            for (i in 0 until header.authorityRecordCount) {
+                add(ResourceRecord(byteBuffer))
+            }
+        }
+        additionalResourceRecords = buildList {
+            for (i in 0 until header.additionalRecordCount) {
+                add(ResourceRecord(byteBuffer))
+            }
+        }
     }
 
     constructor(byteArray: ByteArray) : this(ByteBuffer.wrap(byteArray))
     constructor(
         header: DnsHeader,
-        questions: List<DnsQuestion>,
-        answers: List<ResourceRecord>
+        questions: List<DnsQuestion> = listOf(),
+        answers: List<ResourceRecord> = listOf(),
+        authorityRecords: List<ResourceRecord> = listOf(),
+        additionalRecords: List<ResourceRecord> = listOf()
     ) {
         this.header = header
         this.questions = questions
         this.answers = answers
+        this.authorityResourceRecords = authorityRecords
+        this.additionalResourceRecords = additionalRecords
     }
 
     override fun toString(): String {
