@@ -1,6 +1,7 @@
 package rhron255.projects.k_dns.protocol
 
 import rhron255.projects.k_dns.utils.readDomainName
+import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
 
 class DnsQuestion {
@@ -16,4 +17,13 @@ class DnsQuestion {
     }
 
     override fun toString() = "DnsQuestion{type='$questionType',class='$questionClass',questions=$question}"
+
+    fun toBytes(): ByteArray {
+        val questionBytes = question.toLabelBytes()
+        return ByteBuffer.allocate(questionBytes.array().size + 4)
+            .put(questionBytes)
+            .putShort(questionType.code)
+            .putShort(questionClass.code)
+            .array()
+    }
 }

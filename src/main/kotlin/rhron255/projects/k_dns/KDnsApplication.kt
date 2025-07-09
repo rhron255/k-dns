@@ -47,19 +47,18 @@ fun main(args: Array<String>) {
 
             logger.info { "Received message $message from $socket" }
 
-            val header = message.header.copy(
-                questionCount = 0,
-                isQuestion = false,
-                responseCode = DnsResponseCode.NO_ERROR,
-                answerCount = 1
-            ).toBytes().array()
+            val response = DnsMessage(
+                message.header.copy(
+                    isQuestion = false,
+                    responseCode = DnsResponseCode.NO_ERROR,
+                    answerCount = 1
+                ), message.questions, listOf(testResourceRecord)
+            )
 
-            val response = ByteBuffer.allocate(header.size + testResourceRecord.toBytes().size)
-            response.put(header).put(testResourceRecord.toBytes())
-            val size = response.array().size
+            val size = response.toBytes().size
             DatagramSocket(53).use {
                 it.connect(socket)
-                it.send(DatagramPacket(response.array(), size))
+                it.send(DatagramPacket(response.toBytes(), size))
             }
         }
     }

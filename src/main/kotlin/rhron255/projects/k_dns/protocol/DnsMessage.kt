@@ -23,6 +23,15 @@ class DnsMessage {
     }
 
     constructor(byteArray: ByteArray) : this(ByteBuffer.wrap(byteArray))
+    constructor(
+        header: DnsHeader,
+        questions: List<DnsQuestion>,
+        answers: List<ResourceRecord>
+    ) {
+        this.header = header
+        this.questions = questions
+        this.answers = answers
+    }
 
     override fun toString(): String {
         return "DnsMessage{\n" +
@@ -30,5 +39,18 @@ class DnsMessage {
                 "$questions\n" +
                 "$answers\n" +
                 "}"
+    }
+
+    fun toBytes(): ByteArray {
+        val headerBytes = header.toBytes()
+        val bytes = ByteBuffer.allocate(
+            headerBytes.size +
+                    questions.sumOf { it.toBytes().size } +
+                    answers.sumOf { it.toBytes().size }
+        )
+        bytes.put(headerBytes)
+        questions.forEach { bytes.put(it.toBytes()) }
+        answers.forEach { bytes.put(it.toBytes()) }
+        return bytes.array()
     }
 }

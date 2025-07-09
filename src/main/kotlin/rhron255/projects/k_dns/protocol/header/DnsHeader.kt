@@ -103,7 +103,7 @@ class DnsHeader {
         return stringBuilder.toString()
     }
 
-    fun toBytes() = ByteBuffer.allocate(BYTES_IN_HEADER).apply {
+    fun toBytes(): ByteArray = ByteBuffer.allocate(BYTES_IN_HEADER).apply {
         putShort(queryID)
         var headerBits = 0.toShort()
         headerBits = if (isQuestion) headerBits and DnsHeaderMasks.QUERY_OR_RESPONSE.mask.inv() else headerBits or DnsHeaderMasks.QUERY_OR_RESPONSE.mask
@@ -118,7 +118,7 @@ class DnsHeader {
         putShort(answerCount)
         putShort(recordCount)
         putShort(additionalResourceCount)
-    }
+    }.array()
 
     fun copy(
         queryID: Short? = null,

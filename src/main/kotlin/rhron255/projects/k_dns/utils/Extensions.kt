@@ -31,3 +31,13 @@ fun ByteBuffer.readDomainName(): String {
     }
     return questionBuilder.toString()
 }
+
+fun String.toLabelBytes(): ByteBuffer {
+    val buffer = ByteBuffer.allocate(this.length + this.count { it == '.' } + 1)
+    this.split(".").forEach {
+        buffer.put(it.length.toByte())
+        buffer.put(it.toByteArray(Charsets.US_ASCII))
+    }
+    buffer.put(0)
+    return buffer.position(0)
+}
