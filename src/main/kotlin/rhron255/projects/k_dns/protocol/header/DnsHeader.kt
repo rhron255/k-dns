@@ -34,16 +34,16 @@ class DnsHeader {
 
     constructor(
         queryID: Short,
-        questionCount: Short,
-        isQuestion: Boolean,
-        opcode: DnsOpcode,
+        questionCount: Short = 0,
+        answerCount: Short = 0,
+        recordCount: Short = 0,
+        isQuestion: Boolean = true,
+        opcode: DnsOpcode = DnsOpcode.STANDARD_QUERY,
         authoritativeAnswer: Boolean = false,
         truncation: Boolean = false,
         recursionDesired: Boolean = true,
         recursionAvailable: Boolean = false,
         responseCode: DnsResponseCode = DnsResponseCode.NO_ERROR,
-        answerCount: Short = 0,
-        recordCount: Short = 0,
         additionalResourceCount: Short = 0
     ) {
         this.queryID = queryID
@@ -136,6 +136,8 @@ class DnsHeader {
     ) = DnsHeader(
         queryID ?: this.queryID,
         questionCount ?: this.questionCount,
+        answerCount ?: this.answerCount,
+        recordCount ?: this.authorityRecordCount,
         isQuestion ?: this.isQuestion,
         opcode ?: this.opcode,
         authoritativeAnswer ?: this.authoritativeAnswer,
@@ -143,8 +145,6 @@ class DnsHeader {
         recursionDesired ?: this.recursionDesired,
         recursionAvailable ?: this.recursionAvailable,
         responseCode ?: this.responseCode,
-        answerCount ?: this.answerCount,
-        recordCount ?: this.authorityRecordCount,
         additionalResourceCount ?: this.additionalRecordCount,
     )
 }

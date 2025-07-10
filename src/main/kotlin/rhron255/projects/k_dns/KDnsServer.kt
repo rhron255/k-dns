@@ -6,9 +6,9 @@ import rhron255.projects.k_dns.protocol.DnsMessage.Companion.DNS_DATAGRAM_SIZE
 import rhron255.projects.k_dns.protocol.DnsQuestion
 import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
-import rhron255.projects.k_dns.protocol.header.DnsResponseCode
 import rhron255.projects.k_dns.protocol.resource_records.IpResource
 import rhron255.projects.k_dns.protocol.resource_records.ResourceRecord
+import rhron255.projects.k_dns.services.DnsMessageBuilder
 import rhron255.projects.k_dns.utils.infoPhaseLog
 import java.net.*
 import java.nio.ByteBuffer
@@ -59,13 +59,10 @@ class KDnsServer {
 
                 logger.info { "Received message $message from $socket" }
 
-                val response = DnsMessage(
-                    message.header.copy(
-                        isQuestion = false,
-                        responseCode = DnsResponseCode.NO_ERROR,
-                        answerCount = 1
-                    ), message.questions, getRecords(message.questions)
-                )
+                val response = DnsMessageBuilder.response(message.questions)
+                    .setId(message.header.queryID)
+                    .addAnswer(getRecords(message.questions)[0])
+                    .build()
 
                 val size = response.toBytes().size
                 DatagramSocket(53).use {
