@@ -33,33 +33,40 @@ class KDnsClient(
             exitProcess(0)
         }
         println("KDnsClient started!")
+
         var input = getInput()
         while (true) {
             if (input == "exit") {
                 exitProcess(0)
             }
-            val dnsMessage = sendReceiveDnsQuery(input)
+            try {
+                val dnsMessage = sendReceiveDnsQuery(input)
 
-            println(with(StringBuilder()) {
-                appendLine("Server:\t${upstream}")
-                appendLine("Address:\t${upstream}#53")
-                appendLine()
-                appendLine(if (dnsMessage.header.authoritativeAnswer) "Authoritative answer:" else "Non-authoritative answer:")
-                appendLine("Name:\t${dnsMessage.answers[0].name}")
-                dnsMessage.answers.forEach {
-                    if (it is IpResource) {
-                        it.getIpAddresses().forEach {
-                            appendLine("Address:\t${it}")
+                println(with(StringBuilder()) {
+                    appendLine("Server:\t${upstream}")
+                    appendLine("Address:\t${upstream}#53")
+                    appendLine()
+                    appendLine(if (dnsMessage.header.authoritativeAnswer) "Authoritative answer:" else "Non-authoritative answer:")
+                    appendLine("Name:\t${dnsMessage.answers[0].name}")
+                    dnsMessage.answers.forEach {
+                        if (it is IpResource) {
+                            it.getIpAddresses().forEach {
+                                appendLine("Address:\t${it}")
+                            }
+                        } else if (it is CanonicalNameAliasResource) {
+                            appendLine("Aliases:\t ${it.rdata}")
                         }
-                    } else if (it is CanonicalNameAliasResource) {
-                        appendLine("Aliases:\t ${it.rdata}")
                     }
-                }
-                deleteCharAt(length - 1)
-                toString()
-            })
+                    deleteCharAt(length - 1)
+                    toString()
+                })
+                input = getInput()
 
-            input = getInput()
+            } catch (e: Exception) {
+                println("Error: ${e.message ?: e.toString()}")
+
+                input = getInput()
+            }
         }
     }
 
