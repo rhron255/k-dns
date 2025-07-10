@@ -1,5 +1,8 @@
 package rhron255.projects.k_dns
 
+import kotlin.system.exitProcess
+
+@Suppress("unused")
 class KDnsApplication
 
 
@@ -14,5 +17,6 @@ fun main(args: Array<String>) {
         }
     } else {
         print("Usage: kdns <domain-name> <dns-address> OR kdns - <dns-address>")
+        exitProcess(-1)
     }
 }
