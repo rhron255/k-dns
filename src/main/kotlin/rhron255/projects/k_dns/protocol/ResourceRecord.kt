@@ -4,9 +4,10 @@ import rhron255.projects.k_dns.utils.readDomainName
 import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
 
+
 // TODO make the rdata different for different record class and types.
 //  either with a factory of other implementations. I'm thinking factory for now
-data class ResourceRecord(
+abstract class ResourceRecord<T>(
     val name: String,
     val type: RecordType,
     val resourceClass: RecordClass,
@@ -15,10 +16,12 @@ data class ResourceRecord(
     // rdata length in bytes
     val rdlength: Short,
     // the actual data - can be domain names, IPs and such
-    val rdata: List<String>
+    val rdata: List<T>
 ) {
     companion object {
         private const val BINARY_HEADER_BYTE_SIZE = 10
+        private const val LABEL_POINTER_SIZE = 2
+        private const val AFTER_HEADER_POINTER = 0xc00c.toShort()
     }
 
     constructor(buffer: ByteBuffer) : this(
@@ -30,18 +33,30 @@ data class ResourceRecord(
         rdata = TODO("Not yet implemented - need to be implemented for each record type")
     )
 
-    // TODO find a way to return the name and not the reference.
+
+    abstract fun getDataSizeInBytes(): Int
+    abstract fun getDataAsByteArray(): ByteArray
+    abstract fun copy(
+        name: String? = null,
+        type: RecordType? = null,
+        resourceClass: RecordClass? = null,
+        ttl: Int? = null,
+        rdlength: Short? = null,
+        rdata: List<T>? = null,
+    ): ResourceRecord<T>
+
     fun toBytes(usePointer: Boolean = true): ByteArray {
         val buffer = if (usePointer) {
-            ByteBuffer.allocate(2 + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE + 1).apply {
+            ByteBuffer.allocate(LABEL_POINTER_SIZE + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE + 1).apply {
 //            This value references the question's domain name - 1100_0000_1100_0000
 //            12 bytes into the message - where the header ends
 //            The first two bits indicate a pointer
-                putShort(0xc00c.toShort())
+                putShort(AFTER_HEADER_POINTER)
             }
         } else {
             ByteBuffer.allocate(
-                name.toLabelBytes().array().size + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE + 1).apply {
+                name.toLabelBytes().array().size + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE + 1
+            ).apply {
                 put(name.toLabelBytes())
             }
         }
@@ -50,7 +65,7 @@ data class ResourceRecord(
             putShort(resourceClass.code)
             putInt(ttl)
             putShort(rdlength)
-            rdata.map { it.toByteArray(Charsets.US_ASCII) }.forEach { put(it) }
+            put(getDataAsByteArray())
         }.array()
     }
 }
