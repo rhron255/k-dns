@@ -38,14 +38,35 @@ class KDnsClient(
             if (input == "exit") {
                 exitProcess(0)
             }
-            sendReceiveDnsQuery(input)
+            val dnsMessage = sendReceiveDnsQuery(input)
+
+            println(with(StringBuilder()) {
+                appendLine("Server:\t${upstream}")
+                appendLine("Address:\t${upstream}#53")
+                appendLine()
+                appendLine(if (dnsMessage.header.authoritativeAnswer) "Authoritative answer:" else "Non-authoritative answer:")
+                appendLine("Name:\t${dnsMessage.answers[0].name}")
+                dnsMessage.answers.forEach {
+                    if (it is IpResource) {
+                        it.getIpAddresses().forEach {
+                            appendLine("Address:\t${it}")
+                        }
+                    } else if (it is CanonicalNameAliasResource) {
+                        appendLine("Aliases:\t ${it.rdata}")
+                    }
+                }
+                deleteCharAt(length - 1)
+                toString()
+            })
+
             input = getInput()
         }
     }
 
-    private fun sendReceiveDnsQuery(input: String) {
+    private fun sendReceiveDnsQuery(input: String): DnsMessage {
         val dnsMessage = DnsMessage(
             DnsHeader(
+//                TODO make this a UUID
                 queryID = 1234,
                 questionCount = 1,
                 isQuestion = true,
@@ -70,25 +91,7 @@ class KDnsClient(
                 DNS_DATAGRAM_SIZE
             )
             it.receive(dnsPacket)
-            val dnsMessage = DnsMessage(dnsPacket.data)
-            println(with(StringBuilder()) {
-                appendLine("Server:\t${upstream}")
-                appendLine("Address:\t${upstream}#53")
-                appendLine()
-                appendLine(if (dnsMessage.header.authoritativeAnswer) "Authoritative answer:" else "Non-authoritative answer:")
-                appendLine("Name:\t${dnsMessage.answers[0].name}")
-                dnsMessage.answers.forEach {
-                    if (it is IpResource) {
-                        it.getIpAddresses().forEach {
-                            appendLine("Address:\t${it}")
-                        }
-                    } else if (it is CanonicalNameAliasResource) {
-                        appendLine("Aliases:\t ${it.rdata}")
-                    }
-                }
-                deleteCharAt(length - 1)
-                toString()
-            })
+            return DnsMessage(dnsPacket.data)
         }
     }
 }
