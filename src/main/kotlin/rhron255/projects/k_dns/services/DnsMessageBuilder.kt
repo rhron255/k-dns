@@ -72,10 +72,14 @@ open class DnsMessageBuilder private constructor(private val isQuery: Boolean) {
             recursionAvailable = recursionAvailable,
             responseCode = responseCode,
         )
+//        TODO when hardening the code - drop the offsets - could be used maliciously to cause overflows.
         (answers + authoritativeAnswers + additionlRecords).forEach { record ->
-            questions.find { it.question.endsWith(record.name) }?.also {
+            val index = questions.indexOfFirst { it.question.endsWith(record.name) }
+            if (index != -1) {
                 record.setPointer(
-                    it.question.removeSuffix(record.name).toLabelBytes().array().size + BYTES_IN_HEADER
+                    questions.slice(0 until index).sumOf { it.toBytes().size } +
+                            questions[index].question.removeSuffix(record.name).toLabelBytes()
+                                .array().size + BYTES_IN_HEADER
                 )
             }
         }

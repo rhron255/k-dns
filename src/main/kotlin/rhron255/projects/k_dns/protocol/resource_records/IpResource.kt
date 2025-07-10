@@ -36,6 +36,11 @@ class IpResource(
         val buffer: ByteBuffer = ByteBuffer.allocate(getDataSizeInBytes())
         rdata.map { buffer.put(it.toByteArray()) }
         return buffer.array()
+//        return rdata.map { it.toByteArray() }
+//            .reduce { acc, bytes ->
+//                acc.copyOf(acc.size + bytes.size)
+//                    .apply { bytes.copyInto(this, acc.size) }
+//            }
     }
 
     override fun copy(
