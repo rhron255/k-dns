@@ -27,8 +27,7 @@ class DnsQuestion {
     fun toBytes(): ByteArray {
         val questionBytes = question.toLabelBytes()
         return ByteBuffer.allocate(questionBytes.array().size + 4)
-            // Removing the last null-byte
-            .put(questionBytes.slice(0, questionBytes.array().size - 1))
+            .put(questionBytes)
             .putShort(questionType.code)
             .putShort(questionClass.code)
             .array()

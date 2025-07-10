@@ -56,12 +56,11 @@ private fun ByteBuffer.innerReadDomainName(): String {
 }
 
 fun String.toLabelBytes(): ByteBuffer {
-    val buffer = ByteBuffer.allocate(this.length + this.count { it == '.' } + 1)
+    val buffer = ByteBuffer.allocate(this.length + this.count { it == '.' })
     this.split(".").forEach {
         buffer.put(it.length.toByte())
         buffer.put(it.toByteArray(Charsets.US_ASCII))
     }
-    buffer.put(0)
     return buffer.position(0)
 }
 
