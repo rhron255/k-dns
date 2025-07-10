@@ -1,6 +1,7 @@
 package rhron255.projects.k_dns.protocol
 
 import rhron255.projects.k_dns.utils.readDomainName
+import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
 
 // TODO make the rdata different for different record class and types.
@@ -30,16 +31,26 @@ data class ResourceRecord(
     )
 
     // TODO find a way to return the name and not the reference.
-    fun toBytes(): ByteArray =
-        ByteBuffer.allocate(2 + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE + 1).apply {
+    fun toBytes(usePointer: Boolean = true): ByteArray {
+        val buffer = if (usePointer) {
+            ByteBuffer.allocate(2 + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE + 1).apply {
 //            This value references the question's domain name - 1100_0000_1100_0000
 //            12 bytes into the message - where the header ends
 //            The first two bits indicate a pointer
-            putShort(0xc00c.toShort())
+                putShort(0xc00c.toShort())
+            }
+        } else {
+            ByteBuffer.allocate(
+                name.toLabelBytes().array().size + rdata.sumOf { it.length } + BINARY_HEADER_BYTE_SIZE + 1).apply {
+                put(name.toLabelBytes())
+            }
+        }
+        return buffer.apply {
             putShort(type.code)
             putShort(resourceClass.code)
             putInt(ttl)
             putShort(rdlength)
             rdata.map { it.toByteArray(Charsets.US_ASCII) }.forEach { put(it) }
         }.array()
+    }
 }
