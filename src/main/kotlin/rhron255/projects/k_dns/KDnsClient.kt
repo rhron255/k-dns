@@ -7,6 +7,7 @@ import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
 import rhron255.projects.k_dns.protocol.header.DnsHeader
 import rhron255.projects.k_dns.protocol.header.DnsOpcode
+import rhron255.projects.k_dns.protocol.resource_records.CanonicalNameAliasResource
 import rhron255.projects.k_dns.protocol.resource_records.IpResource
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -76,8 +77,14 @@ class KDnsClient(
                 appendLine()
                 appendLine(if (dnsMessage.header.authoritativeAnswer) "Authoritative answer:" else "Non-authoritative answer:")
                 appendLine("Name:\t${dnsMessage.answers[0].name}")
-                (dnsMessage.answers[0] as IpResource).getIpAddresses().forEach {
-                    appendLine("Address:\t${it}")
+                dnsMessage.answers.forEach {
+                    if (it is IpResource) {
+                        it.getIpAddresses().forEach {
+                            appendLine("Address:\t${it}")
+                        }
+                    } else if (it is CanonicalNameAliasResource) {
+                        appendLine("Aliases:\t ${it.rdata}")
+                    }
                 }
                 deleteCharAt(length - 1)
                 toString()

@@ -16,7 +16,8 @@ class ResourceRecordFactory {
     fun getRecordReader(type: RecordType, recordClass: RecordClass): RecordBuilder {
         return when (type to recordClass) {
             RecordType.A to RecordClass.IN -> ::IpResource
-            else -> TODO("$type -> $recordClass not yet implemeted")
+            RecordType.CNAME to RecordClass.IN -> ::CanonicalNameAliasResource
+            else -> TODO("$type -> $recordClass not yet implemented")
         }
     }
 
