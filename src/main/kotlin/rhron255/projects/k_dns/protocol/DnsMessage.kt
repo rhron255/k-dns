@@ -2,6 +2,7 @@ package rhron255.projects.k_dns.protocol
 
 import rhron255.projects.k_dns.protocol.header.DnsHeader
 import rhron255.projects.k_dns.protocol.resource_records.ResourceRecord
+import rhron255.projects.k_dns.protocol.resource_records.ResourceRecordFactory
 import java.nio.ByteBuffer
 
 class DnsMessage {
@@ -24,8 +25,7 @@ class DnsMessage {
         }
         answers = buildList {
             for (i in 0 until header.answerCount) {
-//                add(ResourceRecord(byteBuffer))
-                TODO("Not yet implemented")
+                add(ResourceRecordFactory.getInstance().getResource(byteBuffer))
             }
         }
         authorityResourceRecords = buildList {

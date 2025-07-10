@@ -2,7 +2,10 @@ package rhron255.projects.k_dns.protocol.resource_records
 
 import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
+import rhron255.projects.k_dns.utils.readDomainName
 import java.nio.ByteBuffer
+
+typealias RecordBuilder = (String, RecordType, RecordClass, Int, Short, ByteBuffer) -> ResourceRecord<*>
 
 class ResourceRecordFactory {
     companion object {
@@ -10,31 +13,21 @@ class ResourceRecordFactory {
         fun getInstance() = instance
     }
 
-    val typeClassResourceMap = buildMap {
-        put(RecordType.A to RecordClass.IN, ::getIpResource)
-    }
-
-    fun getResource(recordType: RecordType, recordClass: RecordClass): ResourceRecord<*> {
-        typeClassResourceMap[recordType to recordClass]?.let {
-            TODO("Not yet implemented - might not be needed")
+    fun getRecordReader(type: RecordType, recordClass: RecordClass): RecordBuilder {
+        return when (type to recordClass) {
+            RecordType.A to RecordClass.IN -> ::IpResource
+            else -> TODO("$type -> $recordClass not yet implemeted")
         }
-        TODO("Not yet implemented - might not be needed")
     }
 
-    // TODO move IP retrieval to cache which queries upstream dns on miss.
-    fun getIpResource(domainName: String, ip: String): ResourceRecord<*> = IpResource(
-        domainName,
-        RecordType.A,
-        RecordClass.IN,
-        360,
-        4,
-        listOf(
-            ByteBuffer.wrap(
-                ip.split('.')
-                    .map(String::toInt)
-                    .map(Int::toByte)
-                    .toByteArray()
-            ).getInt()
-        ),
-    )
+    fun getResource(buffer: ByteBuffer): ResourceRecord<*> {
+        val name = buffer.readDomainName()
+        val type = RecordType.fromBytes(buffer)
+        val resourceClass = RecordClass.fromBytes(buffer)
+        val ttl = buffer.getInt()
+        val rdlength = buffer.getShort()
+        return getRecordReader(type, resourceClass)(
+            name, type, resourceClass, ttl, rdlength, buffer
+        )
+    }
 }

@@ -16,12 +16,19 @@ class DnsQuestion {
         questionClass = RecordClass.fromBytes(bytes)
     }
 
+    constructor(question: String, questionType: RecordType, questionClass: RecordClass) {
+        this.question = question
+        this.questionType = questionType
+        this.questionClass = questionClass
+    }
+
     override fun toString() = "DnsQuestion{type='$questionType',class='$questionClass',questions=$question}"
 
     fun toBytes(): ByteArray {
         val questionBytes = question.toLabelBytes()
         return ByteBuffer.allocate(questionBytes.array().size + 4)
-            .put(questionBytes)
+            // Removing the last null-byte
+            .put(questionBytes.slice(0, questionBytes.array().size - 1))
             .putShort(questionType.code)
             .putShort(questionClass.code)
             .array()

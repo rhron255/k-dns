@@ -37,14 +37,14 @@ class DnsHeader {
         questionCount: Short,
         isQuestion: Boolean,
         opcode: DnsOpcode,
-        authoritativeAnswer: Boolean,
-        truncation: Boolean,
-        recursionDesired: Boolean,
-        recursionAvailable: Boolean,
-        responseCode: DnsResponseCode,
-        answerCount: Short,
-        recordCount: Short,
-        additionalResourceCount: Short
+        authoritativeAnswer: Boolean = false,
+        truncation: Boolean = false,
+        recursionDesired: Boolean = true,
+        recursionAvailable: Boolean = false,
+        responseCode: DnsResponseCode = DnsResponseCode.NO_ERROR,
+        answerCount: Short = 0,
+        recordCount: Short = 0,
+        additionalResourceCount: Short = 0
     ) {
         this.queryID = queryID
         this.questionCount = questionCount

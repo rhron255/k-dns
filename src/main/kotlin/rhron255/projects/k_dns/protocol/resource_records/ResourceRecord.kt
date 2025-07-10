@@ -2,12 +2,9 @@ package rhron255.projects.k_dns.protocol.resource_records
 
 import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
-import rhron255.projects.k_dns.utils.readDomainName
 import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
 
-// TODO make the rdata different for different record class and types.
-//  either with a factory of other implementations. I'm thinking factory for now
 abstract class ResourceRecord<T>(
     val name: String,
     val type: RecordType,
@@ -24,16 +21,6 @@ abstract class ResourceRecord<T>(
         private const val LABEL_POINTER_SIZE = 2
         private const val AFTER_HEADER_POINTER = 0xc00c.toShort()
     }
-
-    constructor(buffer: ByteBuffer) : this(
-        name = buffer.readDomainName(),
-        type = RecordType.Companion.fromBytes(buffer),
-        resourceClass = RecordClass.Companion.fromBytes(buffer),
-        ttl = buffer.getInt(),
-        rdlength = buffer.getShort(),
-        rdata = TODO("Not yet implemented - need to be implemented for each record type")
-    )
-
 
     abstract fun getDataSizeInBytes(): Int
     abstract fun getDataAsByteArray(): ByteArray
