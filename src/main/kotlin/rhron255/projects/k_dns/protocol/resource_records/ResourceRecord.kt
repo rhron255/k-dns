@@ -1,9 +1,10 @@
-package rhron255.projects.k_dns.protocol
+package rhron255.projects.k_dns.protocol.resource_records
 
+import rhron255.projects.k_dns.protocol.RecordClass
+import rhron255.projects.k_dns.protocol.RecordType
 import rhron255.projects.k_dns.utils.readDomainName
 import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
-
 
 // TODO make the rdata different for different record class and types.
 //  either with a factory of other implementations. I'm thinking factory for now
@@ -26,8 +27,8 @@ abstract class ResourceRecord<T>(
 
     constructor(buffer: ByteBuffer) : this(
         name = buffer.readDomainName(),
-        type = RecordType.fromBytes(buffer),
-        resourceClass = RecordClass.fromBytes(buffer),
+        type = RecordType.Companion.fromBytes(buffer),
+        resourceClass = RecordClass.Companion.fromBytes(buffer),
         ttl = buffer.getInt(),
         rdlength = buffer.getShort(),
         rdata = TODO("Not yet implemented - need to be implemented for each record type")

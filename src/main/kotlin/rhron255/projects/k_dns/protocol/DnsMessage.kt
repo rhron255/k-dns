@@ -1,14 +1,19 @@
 package rhron255.projects.k_dns.protocol
 
 import rhron255.projects.k_dns.protocol.header.DnsHeader
+import rhron255.projects.k_dns.protocol.resource_records.ResourceRecord
 import java.nio.ByteBuffer
 
 class DnsMessage {
     val header: DnsHeader
     val questions: List<DnsQuestion>
-    val answers: List<ResourceRecord>
-    val authorityResourceRecords: List<ResourceRecord>
-    val additionalResourceRecords: List<ResourceRecord>
+    val answers: List<ResourceRecord<*>>
+    val authorityResourceRecords: List<ResourceRecord<*>>
+    val additionalResourceRecords: List<ResourceRecord<*>>
+
+    companion object {
+        const val DNS_DATAGRAM_SIZE = 512
+    }
 
     constructor(byteBuffer: ByteBuffer) {
         header = DnsHeader(byteBuffer)
@@ -19,17 +24,20 @@ class DnsMessage {
         }
         answers = buildList {
             for (i in 0 until header.answerCount) {
-                add(ResourceRecord(byteBuffer))
+//                add(ResourceRecord(byteBuffer))
+                TODO("Not yet implemented")
             }
         }
         authorityResourceRecords = buildList {
             for (i in 0 until header.authorityRecordCount) {
-                add(ResourceRecord(byteBuffer))
+//                add(ResourceRecord(byteBuffer))
+                TODO("Not yet implemented")
             }
         }
         additionalResourceRecords = buildList {
             for (i in 0 until header.additionalRecordCount) {
-                add(ResourceRecord(byteBuffer))
+//                add(ResourceRecord(byteBuffer))
+                TODO("Not yet implemented")
             }
         }
     }
@@ -38,9 +46,9 @@ class DnsMessage {
     constructor(
         header: DnsHeader,
         questions: List<DnsQuestion> = listOf(),
-        answers: List<ResourceRecord> = listOf(),
-        authorityRecords: List<ResourceRecord> = listOf(),
-        additionalRecords: List<ResourceRecord> = listOf()
+        answers: List<ResourceRecord<*>> = listOf(),
+        authorityRecords: List<ResourceRecord<*>> = listOf(),
+        additionalRecords: List<ResourceRecord<*>> = listOf()
     ) {
         this.header = header
         this.questions = questions
