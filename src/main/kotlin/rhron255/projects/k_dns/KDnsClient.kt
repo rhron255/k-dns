@@ -5,10 +5,10 @@ import rhron255.projects.k_dns.protocol.DnsMessage.Companion.DNS_DATAGRAM_SIZE
 import rhron255.projects.k_dns.protocol.DnsQuestion
 import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
-import rhron255.projects.k_dns.protocol.header.DnsHeader
 import rhron255.projects.k_dns.protocol.header.DnsOpcode
 import rhron255.projects.k_dns.protocol.resource_records.CanonicalNameAliasResource
 import rhron255.projects.k_dns.protocol.resource_records.IpResource
+import rhron255.projects.k_dns.services.DnsMessageBuilder
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetSocketAddress
@@ -71,22 +71,14 @@ class KDnsClient(
     }
 
     private fun sendReceiveDnsQuery(input: String): DnsMessage {
-        val dnsMessage = DnsMessage(
-            DnsHeader(
-//                TODO make this a UUID
-                queryID = 1234,
-                questionCount = 1,
-                isQuestion = true,
-                opcode = DnsOpcode.STANDARD_QUERY,
-            ),
-            listOf(
-                DnsQuestion(
-                    input,
-                    RecordType.A,
-                    RecordClass.IN
-                )
+        val dnsMessage = DnsMessageBuilder
+            .query()
+            .addQuestion(
+                DnsQuestion(input, RecordType.A, RecordClass.IN),
             )
-        ).toBytes()
+            .setOpcode(DnsOpcode.STANDARD_QUERY)
+            .build()
+            .toBytes()
 
         DatagramSocket().use {
             it.connect(InetSocketAddress(upstream, 53))

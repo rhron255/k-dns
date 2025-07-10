@@ -10,7 +10,7 @@ import rhron255.projects.k_dns.protocol.resource_records.ResourceRecord
 import rhron255.projects.k_dns.utils.toLabelBytes
 import java.util.concurrent.atomic.AtomicInteger
 
-open class DnsMessageBuilder private constructor(private val isQuery: Boolean) {
+sealed class DnsMessageBuilder(private val isQuery: Boolean) {
     class DnsQueryBuilder() : DnsMessageBuilder(false) {
         fun addQuestion(question: DnsQuestion) = this.apply { questions.add(question) }
         fun clearQuestions() = this.apply { questions.clear() }
