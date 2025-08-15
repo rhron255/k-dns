@@ -11,7 +11,7 @@ import rhron255.projects.k_dns.utils.toLabelBytes
 import java.util.concurrent.atomic.AtomicInteger
 
 sealed class DnsMessageBuilder(private val isQuery: Boolean) {
-    class DnsQueryBuilder() : DnsMessageBuilder(false) {
+    class DnsQueryBuilder() : DnsMessageBuilder(true) {
         fun addQuestion(question: DnsQuestion) = this.apply { questions.add(question) }
         fun clearQuestions() = this.apply { questions.clear() }
         fun setOpcode(opcode: DnsOpcode) = apply { this.opcode = opcode }
