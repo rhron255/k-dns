@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 fun ByteBuffer.getCurrentByte(): Byte = get(position())
 fun ByteBuffer.getAsciiChar(): Char = get().toInt().toChar()
 fun ByteBuffer.skip(numBytes: Int): ByteBuffer = position(position() + numBytes)
-fun <T> T?.getOrThrow(lambda: () -> Exception): T = this ?: throw lambda()
+inline fun <T> T?.getOrThrow(crossinline lambda: () -> Exception): T = this ?: throw lambda()
 
 fun <T> KLogger.infoPhaseLog(msg: String, lambda: () -> T): T {
     info(msg)

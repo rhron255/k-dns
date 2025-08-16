@@ -8,13 +8,19 @@ import rhron255.projects.k_dns.services.DnsMessageBuilder
 import rhron255.projects.k_dns.services.ResourceRecordService
 import rhron255.projects.k_dns.utils.infoPhaseLog
 import java.net.*
+import java.net.StandardSocketOptions.SO_REUSEADDR
+import java.net.StandardSocketOptions.SO_REUSEPORT
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
+import kotlin.apply
 import kotlin.system.exitProcess
 
 class KDnsServer(
     val upstream: String,
+    val interfaceAddress: String,
+    val port: Int,
 ) {
+
     companion object {
         val logger = KotlinLogging.logger(KDnsServer::class.java.name)
     }
@@ -23,8 +29,11 @@ class KDnsServer(
         val udpServer = logger.infoPhaseLog("KDnsApplication starting on port 53") {
             DatagramChannel
                 .open(StandardProtocolFamily.INET)
-                .setOption(StandardSocketOptions.SO_REUSEPORT, true)
-                .bind(InetSocketAddress("0.0.0.0", 53))
+                .apply {
+                    setOption(SO_REUSEADDR, true)
+                    setOption(SO_REUSEPORT, true)
+                }
+                .bind(InetSocketAddress(interfaceAddress, port))
         }
 
         if (!udpServer.isOpen) {
@@ -55,7 +64,7 @@ class KDnsServer(
 
 
                 val size = response.toBytes().size
-                DatagramSocket(53).use {
+                DatagramSocket(port).use {
                     it.connect(socket)
                     it.send(DatagramPacket(response.toBytes(), size))
                 }
