@@ -29,7 +29,7 @@ class KDnsClient(
 
     fun start(): Nothing {
         if (address != null) {
-            sendReceiveDnsQuery(address)
+            sendReceiveDnsQuery(address, dnsOpcode = DnsOpcode.STANDARD_QUERY)
             exitProcess(0)
         }
         println("KDnsClient started!")
@@ -40,7 +40,7 @@ class KDnsClient(
                 exitProcess(0)
             }
             try {
-                val dnsMessage = sendReceiveDnsQuery(input)
+                val dnsMessage = sendReceiveDnsQuery(input, dnsOpcode = DnsOpcode.STANDARD_QUERY)
 
                 println(with(StringBuilder()) {
                     appendLine("Server:\t${upstream}")
@@ -70,27 +70,34 @@ class KDnsClient(
         }
     }
 
-    private fun sendReceiveDnsQuery(input: String): DnsMessage {
+    fun sendReceiveDnsQuery(
+        question: String,
+        type: RecordType = RecordType.A,
+        recordClass: RecordClass = RecordClass.IN,
+        dnsOpcode: DnsOpcode = DnsOpcode.STANDARD_QUERY
+    ): DnsMessage {
         val dnsMessage = DnsMessageBuilder
             .query()
             .addQuestion(
-                DnsQuestion(input, RecordType.A, RecordClass.IN),
+                DnsQuestion(question, type, recordClass),
             )
-            .setOpcode(DnsOpcode.STANDARD_QUERY)
+            .setOpcode(dnsOpcode)
             .build()
-            .toBytes()
 
-        DatagramSocket().use {
-            it.connect(InetSocketAddress(upstream, 53))
-            it.send(
-                DatagramPacket(dnsMessage, dnsMessage.size)
-            )
-            val dnsPacket = DatagramPacket(
-                ByteArray(DNS_DATAGRAM_SIZE),
-                DNS_DATAGRAM_SIZE
-            )
-            it.receive(dnsPacket)
-            return DnsMessage(dnsPacket.data)
-        }
+        return sendReceiveDnsMessage(dnsMessage)
+    }
+
+    fun sendReceiveDnsMessage(dnsMessage: DnsMessage): DnsMessage = DatagramSocket().use {
+        val dnsBytes = dnsMessage.toBytes()
+        it.connect(InetSocketAddress(upstream, 53))
+        it.send(
+            DatagramPacket(dnsBytes, dnsBytes.size)
+        )
+        val dnsPacket = DatagramPacket(
+            ByteArray(DNS_DATAGRAM_SIZE),
+            DNS_DATAGRAM_SIZE
+        )
+        it.receive(dnsPacket)
+        return DnsMessage(dnsPacket.data)
     }
 }

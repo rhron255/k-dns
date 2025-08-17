@@ -7,12 +7,14 @@ import rhron255.projects.k_dns.protocol.header.DnsResponseCode
 import rhron255.projects.k_dns.services.DnsMessageBuilder
 import rhron255.projects.k_dns.services.ResourceRecordService
 import rhron255.projects.k_dns.utils.infoPhaseLog
-import java.net.*
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetSocketAddress
+import java.net.StandardProtocolFamily
 import java.net.StandardSocketOptions.SO_REUSEADDR
 import java.net.StandardSocketOptions.SO_REUSEPORT
 import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
-import kotlin.apply
 import kotlin.system.exitProcess
 
 class KDnsServer(
@@ -50,12 +52,12 @@ class KDnsServer(
 
                 logger.info { "Received message $message from $socket" }
 
-                val record = resourceRecordService.findIpRecordByName(message.questions[0].question)
+                val records = resourceRecordService.findIpRecordByName(message.questions[0].question)
 
                 val response = with(DnsMessageBuilder.response(message.questions)) {
                     setId(message.header.queryID)
-                    if (record != null) {
-                        addAnswer(record)
+                    if (!records.isEmpty()) {
+                        records.forEach(::addAnswer)
                     } else {
                         setResponseCode(DnsResponseCode.NAME_ERROR)
                     }

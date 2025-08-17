@@ -1,25 +1,8 @@
 package rhron255.projects.k_dns.services
 
 import rhron255.projects.k_dns.KDnsClient
-import rhron255.projects.k_dns.protocol.RecordClass
-import rhron255.projects.k_dns.protocol.RecordType
 import rhron255.projects.k_dns.protocol.resource_records.IpResource
 import rhron255.projects.k_dns.services.cache.ResourceRecordCache
-import java.nio.ByteBuffer
-
-fun getIpResource(domainName: String, ip: String = "142.250.75.110") = IpResource(
-    domainName,
-    RecordType.A,
-    RecordClass.IN,
-    360,
-    4,
-    ByteBuffer.wrap(
-        ip.split('.')
-            .map(String::toInt)
-            .map(Int::toByte)
-            .toByteArray()
-    ),
-)
 
 class ResourceRecordService(
     upstream: String
@@ -27,11 +10,13 @@ class ResourceRecordService(
     private val cache = ResourceRecordCache()
     private val client = KDnsClient(upstream)
 
-    fun findIpRecordByName(cname: String): IpResource? {
+    fun findIpRecordByName(cname: String): List<IpResource> {
         val record = cache.find { it.name == cname && it is IpResource } as? IpResource?
         if (record == null) {
-            return listOf(getIpResource(cname), null).random()
+            val response = client.sendReceiveDnsQuery(cname)
+            cache.addAll(response.answers + response.additionalResourceRecords + response.authorityResourceRecords)
+            return response.answers.filterIsInstance<IpResource>()
         }
-        return record
+        return listOf(record)
     }
 }
