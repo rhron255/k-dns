@@ -1,6 +1,8 @@
 plugins {
     kotlin("jvm") version "1.9.25"
     application
+    id("org.springframework.boot") version "3.5.4"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "rhron255.projects"
@@ -19,6 +21,14 @@ repositories {
 dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:latest.release")
     implementation("ch.qos.logback:logback-classic:latest.release")
+
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
@@ -33,27 +43,4 @@ tasks.withType<Test> {
 
 application {
     mainClass = "rhron255.projects.k_dns.KDnsApplicationKt"
-}
-
-tasks {
-    val fatJar = register<Jar>("fatJar") {
-        dependsOn.addAll(
-            listOf(
-                "compileJava",
-                "compileKotlin",
-                "processResources"
-            )
-        ) // We need this for Gradle optimization to work
-        archiveFileName = "../../kdns.jar"
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        manifest { attributes(mapOf("Main-Class" to application.mainClass)) } // Provided we set it up in the application plugin configuration
-        val sourcesMain = sourceSets.main.get()
-        val contents = configurations.runtimeClasspath.get()
-            .map { if (it.isDirectory) it else zipTree(it) } +
-                sourcesMain.output
-        from(contents)
-    }
-    build {
-        dependsOn(fatJar) // Trigger fat jar creation during build
-    }
 }

@@ -1,7 +1,9 @@
 package rhron255.projects.k_dns.services.cache
 
+import org.springframework.stereotype.Service
 import rhron255.projects.k_dns.protocol.resource_records.ResourceRecord
 
+@Service
 class ResourceRecordCache() : AbstractMutableCollection<ResourceRecord<*>>() {
     data class RRCObject(
         val record: ResourceRecord<*>,

@@ -1,6 +1,8 @@
 package rhron255.projects.k_dns
 
 import mu.two.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import rhron255.projects.k_dns.protocol.DnsMessage
 import rhron255.projects.k_dns.protocol.DnsMessage.Companion.DNS_DATAGRAM_SIZE
 import rhron255.projects.k_dns.protocol.header.DnsResponseCode
@@ -17,12 +19,12 @@ import java.nio.ByteBuffer
 import java.nio.channels.DatagramChannel
 import kotlin.system.exitProcess
 
+@Component
 class KDnsServer(
-    val upstream: String,
-    val interfaceAddress: String,
-    val port: Int,
+    @Value("\${bind_address}") val interfaceAddress: String,
+    @Value("\${bind_port}") val port: Int,
+    val resourceRecordService: ResourceRecordService,
 ) {
-
     companion object {
         val logger = KotlinLogging.logger(KDnsServer::class.java.name)
     }
@@ -41,8 +43,6 @@ class KDnsServer(
         if (!udpServer.isOpen) {
             exitProcess(-1)
         }
-
-        val resourceRecordService = ResourceRecordService(upstream)
 
         while (true) {
             if (udpServer.isOpen) {
