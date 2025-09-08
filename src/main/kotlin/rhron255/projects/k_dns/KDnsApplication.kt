@@ -1,47 +1,16 @@
 package rhron255.projects.k_dns
 
-import org.springframework.beans.factory.getBean
-import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.ApplicationContext
-import org.springframework.context.ApplicationContextAware
-import java.net.StandardSocketOptions.SO_REUSEPORT
-import java.nio.channels.DatagramChannel
-import kotlin.system.exitProcess
 
 @SpringBootApplication
-class KDnsApplication : CommandLineRunner, ApplicationContextAware {
-    private lateinit var context: ApplicationContext
-    override fun setApplicationContext(applicationContext: ApplicationContext) {
-        context = applicationContext
-    }
-
-    override fun run(vararg args: String) {
-        if (args[0] == "server") {
-            val canReusePort = SO_REUSEPORT in DatagramChannel.open().use { it.supportedOptions() }
-            if (!canReusePort) {
-                throw UnsupportedOperationException("Socket reuse not supported! Are you running on windows?")
-            }
-            context.getBean<KDnsServer>().start()
-        } else if (args[0] == "client") {
-            if (args[1] == "-") {
-                KDnsClient(args[2]).start()
-            } else {
-                KDnsClient(args[2], args[1]).start()
-            }
-        } else {
-            print("Usage: kdns server OR kdns client <domain-name> <dns-address> OR kdns client - <dns-address>")
-            exitProcess(-1)
-        }
-    }
-}
+class KDnsApplication
 
 fun main(args: Array<String>) {
-    if (args[0] == "client") {
-        System.setProperty("logging.config", "classpath:/client-logback.xml")
-    } else {
-        // TODO figure out logback for the DNS server
-    }
+//    if (args[0] == "client") {
+////        System.setProperty("logging.config", "classpath:/client-logback.xml")
+//    } else {
+//        // TODO figure out logback for the DNS server
+//    }
     runApplication<KDnsApplication>(*args)
 }

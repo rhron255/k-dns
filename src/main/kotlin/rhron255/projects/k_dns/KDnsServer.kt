@@ -7,6 +7,7 @@ import rhron255.projects.k_dns.protocol.DnsMessage
 import rhron255.projects.k_dns.protocol.DnsMessage.Companion.DNS_DATAGRAM_SIZE
 import rhron255.projects.k_dns.protocol.header.DnsResponseCode
 import rhron255.projects.k_dns.services.DnsMessageBuilder
+import rhron255.projects.k_dns.services.MetricService
 import rhron255.projects.k_dns.services.ResourceRecordService
 import rhron255.projects.k_dns.utils.infoPhaseLog
 import java.net.DatagramPacket
@@ -24,6 +25,7 @@ class KDnsServer(
     @Value("\${bind_address}") val interfaceAddress: String,
     @Value("\${bind_port}") val port: Int,
     val resourceRecordService: ResourceRecordService,
+    val metricService: MetricService,
 ) {
     companion object {
         val logger = KotlinLogging.logger(KDnsServer::class.java.name)
@@ -47,10 +49,12 @@ class KDnsServer(
         while (true) {
             if (udpServer.isOpen) {
                 val buffer = ByteBuffer.allocate(DNS_DATAGRAM_SIZE)
-                val socket: InetSocketAddress = udpServer.receive(buffer) as InetSocketAddress
+                val socket = udpServer.receive(buffer) as InetSocketAddress
                 val message = DnsMessage(buffer.array())
 
                 logger.info { "Received message $message from $socket" }
+
+                metricService.recordQuery(message)
 
                 val records = resourceRecordService.findIpRecordByName(message.questions[0].question)
 
