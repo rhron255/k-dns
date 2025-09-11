@@ -62,6 +62,7 @@ enum class DnsResponseCode {
 
     companion object {
         fun <T : Number> from(code: T) =
-            DnsResponseCode.entries.find { it.ordinal == code.toInt() } ?: throw IllegalStateException("$code is not a valid DNS response")
+            DnsResponseCode.entries.find { it.ordinal == code.toInt() }
+                ?: throw IllegalStateException("$code is not a valid DNS response")
     }
 }

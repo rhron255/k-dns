@@ -19,7 +19,8 @@ class KDnsRunner : ApplicationRunner, ApplicationContextAware {
 
     override fun run(args: ApplicationArguments) {
         if (args.containsOption("server") || (args.optionNames.isEmpty() && args.nonOptionArgs.isEmpty())) {
-            val canReusePort = StandardSocketOptions.SO_REUSEPORT in DatagramChannel.open().use { it.supportedOptions() }
+            val canReusePort =
+                StandardSocketOptions.SO_REUSEPORT in DatagramChannel.open().use { it.supportedOptions() }
             if (!canReusePort) {
                 throw UnsupportedOperationException("Socket reuse not supported! Are you running on windows?")
             }
