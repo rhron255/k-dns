@@ -1,35 +1,32 @@
 package rhron255.projects.k_dns
 
 import org.springframework.beans.factory.getBean
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
+import org.springframework.boot.CommandLineRunner
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Component
-import java.net.StandardSocketOptions
-import java.nio.channels.DatagramChannel
 
 @Component
 @Suppress("unused")
-class KDnsRunner : ApplicationRunner, ApplicationContextAware {
+class KDnsRunner : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
     override fun setApplicationContext(applicationContext: ApplicationContext) {
         context = applicationContext
     }
 
-    override fun run(args: ApplicationArguments) {
-        if (args.containsOption("server") || (args.optionNames.isEmpty() && args.nonOptionArgs.isEmpty())) {
-            val canReusePort =
-                StandardSocketOptions.SO_REUSEPORT in DatagramChannel.open().use { it.supportedOptions() }
-            if (!canReusePort) {
-                throw UnsupportedOperationException("Socket reuse not supported! Are you running on windows?")
-            }
+    override fun run(args: Array<String>) {
+        if (args.contains("--server") || args.isEmpty()) {
             context.getBean<KDnsServer>().start()
         } else {
-            val upstream = args.getOptionValues("upstream")?.firstOrNull()
-                ?: throw IllegalArgumentException("Can only set one upstream DNS")
-            val query = args.nonOptionArgs.firstOrNull()
-            KDnsClient(upstream, query).start()
+            if (args.size == 3) {
+                val (address, _, upstream) = args
+                KDnsClient(upstream, address).start()
+            } else if (args.size == 2) {
+                val (_, upstream) = args
+                KDnsClient(upstream).start()
+            } else {
+                throw IllegalArgumentException("Can only set one upstream DNS")
+            }
         }
     }
 }
