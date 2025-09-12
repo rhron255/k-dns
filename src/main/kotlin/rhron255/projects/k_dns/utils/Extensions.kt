@@ -18,41 +18,36 @@ fun <T> KLogger.infoPhaseLog(msg: String, lambda: () -> T): T {
 /**
  * Reads a domain name as specified in the RFC.
  * Supports reading with pointer records.
- * Either way, position is set after the content
- * (i.e after the pointer or after the text if it is there)
+ * Also supports inner pointers...
  */
 fun ByteBuffer.readDomainName(): String {
-    val isPointer = getCurrentByte() == 0xc0.toByte()
-    val domainName: String
-    if (isPointer) {
-        val ogPosition = position()
-        get()
-        val pointingTo = get().toInt()
-        position(pointingTo)
-        domainName = innerReadDomainName()
-//        Skipping past already read pointer
-        position(ogPosition + 2)
-    } else {
-        domainName = innerReadDomainName()
-    }
-    return domainName
-}
-
-private fun ByteBuffer.innerReadDomainName(): String {
-    val questionBuilder = StringBuilder()
+    val question = StringBuilder()
     while (true) {
-        val length = this.get().toInt()
-        (0 until length).forEach { _ ->
-            questionBuilder.append(this.getAsciiChar())
-        }
-        if (this.getCurrentByte() == 0x00.toByte()) {
-            this.get()
+        val isPointer = getCurrentByte() == 0xc0.toByte()
+        if (isPointer) {
+            val ogPosition = position()
+            get()
+            val pointingTo = get().toInt()
+            position(pointingTo)
+            question.append(readDomainName())
+//            +2 in order to skip pointer and reference bytes.
+            position(ogPosition + 2)
+            break
+        } else if (this.getCurrentByte() == 0x00.toByte()) {
             break
         } else {
-            questionBuilder.append(".")
+            val length = this.get().toInt()
+            (0 until length).forEach { _ ->
+                question.append(this.getAsciiChar())
+            }
+            if (this.getCurrentByte() == 0x00.toByte()) {
+                this.get()
+                break
+            }
+            question.append(".")
         }
     }
-    return questionBuilder.toString()
+    return question.toString()
 }
 
 fun String.toLabelBytes(): ByteBuffer {
