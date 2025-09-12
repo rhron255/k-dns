@@ -28,6 +28,9 @@ class CanonicalNameAliasResource(
                     val name = buffer.readDomainName()
                     add(name)
                     remainingBytes -= name.length
+                    // Two additional bytes are read:
+                    // the null byte at the end of the string, and the one before with the length of the cname entry
+                    remainingBytes -= 2
                 }
             }
         }
