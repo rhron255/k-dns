@@ -37,7 +37,9 @@ fun validateArgs(args: Array<String>) {
                 KDnsClient(upstreamAddress)
                     .sendReceiveDnsQuery(upstreamAddress)
             }.onFailure {
-                print(it::class.jvmName + ": " + (it.message ?: "Failed to connect to upstream DNS at $upstreamAddress"))
+                print(
+                    it::class.jvmName + ": " + (it.message ?: "Failed to connect to upstream DNS at $upstreamAddress")
+                )
                 exitProcess(-1)
             }
         } else {
