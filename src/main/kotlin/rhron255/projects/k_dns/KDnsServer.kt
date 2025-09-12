@@ -2,6 +2,9 @@ package rhron255.projects.k_dns
 
 import mu.two.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.CommandLineRunner
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import rhron255.projects.k_dns.protocol.DnsMessage
 import rhron255.projects.k_dns.protocol.DnsMessage.Companion.DNS_DATAGRAM_SIZE
@@ -21,17 +24,19 @@ import java.nio.channels.DatagramChannel
 import kotlin.system.exitProcess
 
 @Component
+@Suppress("unused")
+@Order(Ordered.LOWEST_PRECEDENCE)
 class KDnsServer(
     @Value("\${bind_address}") val interfaceAddress: String,
     @Value("\${bind_port}") val port: Int,
     val resourceRecordService: ResourceRecordService,
     val metricService: MetricService,
-) {
+): CommandLineRunner {
     companion object {
         val logger = KotlinLogging.logger(KDnsServer::class.java.name)
     }
 
-    fun start() {
+    override fun run(args: Array<String>) {
         val udpServer = logger.infoPhaseLog("KDnsApplication starting on port 53") {
             DatagramChannel
                 .open(StandardProtocolFamily.INET)
