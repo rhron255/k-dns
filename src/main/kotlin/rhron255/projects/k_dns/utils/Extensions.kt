@@ -37,7 +37,7 @@ fun ByteBuffer.readDomainName(): String {
             break
         } else {
             val length = this.get().toInt()
-            (0 until length).forEach { _ ->
+            repeat(length) {
                 question.append(this.getAsciiChar())
             }
             if (this.getCurrentByte() == 0x00.toByte()) {
