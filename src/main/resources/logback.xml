@@ -8,7 +8,9 @@
 
     <appender name="STDOUT" class="ConsoleAppender">
         <encoder class="PatternLayoutEncoder">
-            <pattern>%clr(%d{HH:mm:ss.SSS}){faint} [%thread]-[%clr(%.-1level)] %clr(%-40.40logger{30}){cyan} - %msg%wEx%n</pattern>
+            <pattern>%clr(%d{HH:mm:ss.SSS}){faint} [%thread]-[%clr(%.-1level)] %clr(%-40.40logger{30}){cyan} -
+                %msg%wEx%n
+            </pattern>
         </encoder>
     </appender>
 
