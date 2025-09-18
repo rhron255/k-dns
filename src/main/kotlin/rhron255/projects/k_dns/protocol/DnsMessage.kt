@@ -19,23 +19,23 @@ class DnsMessage {
     constructor(byteBuffer: ByteBuffer) {
         header = DnsHeader(byteBuffer)
         questions = buildList {
-            for (i in 0 until header.questionCount) {
+            repeat(header.questionCount.toInt()) {
                 add(DnsQuestion(byteBuffer))
             }
         }
         answers = buildList {
-            for (i in 0 until header.answerCount) {
+            repeat(header.answerCount.toInt()) {
                 add(ResourceRecordFactory.getResource(byteBuffer))
             }
         }
         authorityResourceRecords = buildList {
-            for (i in 0 until header.authorityRecordCount) {
+            repeat(header.authorityRecordCount.toInt()) {
 //                add(ResourceRecord(byteBuffer))
                 TODO("Not yet implemented")
             }
         }
         additionalResourceRecords = buildList {
-            for (i in 0 until header.additionalRecordCount) {
+            repeat(header.additionalRecordCount.toInt()) {
 //                add(ResourceRecord(byteBuffer))
                 TODO("Not yet implemented")
             }
