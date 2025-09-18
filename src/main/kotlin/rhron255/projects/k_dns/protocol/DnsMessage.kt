@@ -25,7 +25,7 @@ class DnsMessage {
         }
         answers = buildList {
             for (i in 0 until header.answerCount) {
-                add(ResourceRecordFactory.getInstance().getResource(byteBuffer))
+                add(ResourceRecordFactory.getResource(byteBuffer))
             }
         }
         authorityResourceRecords = buildList {

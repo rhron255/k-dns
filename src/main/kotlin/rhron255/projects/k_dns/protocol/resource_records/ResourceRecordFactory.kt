@@ -7,11 +7,7 @@ import java.nio.ByteBuffer
 
 typealias RecordBuilder = (String, RecordType, RecordClass, Int, Short, ByteBuffer) -> ResourceRecord<*>
 
-class ResourceRecordFactory {
-    companion object {
-        private val instance = ResourceRecordFactory()
-        fun getInstance() = instance
-    }
+object ResourceRecordFactory {
 
     fun getRecordReader(type: RecordType, recordClass: RecordClass): RecordBuilder {
         return when (type to recordClass) {

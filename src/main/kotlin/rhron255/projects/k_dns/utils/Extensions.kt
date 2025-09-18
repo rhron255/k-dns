@@ -54,12 +54,13 @@ fun String.toLabelBytes(): ByteBuffer {
     if (this.isBlank()) {
         return ByteBuffer.allocate(0)
     }
-
-    val buffer = ByteBuffer.allocate(this.length + this.count { it == '.' })
-    this.split(".").forEach {
+    // +1 for preceding section length and another +1 for null byte at the end
+    val buffer = ByteBuffer.allocate(this.length + 2)
+    split(".").forEach {
         buffer.put(it.length.toByte())
         buffer.put(it.toByteArray(Charsets.US_ASCII))
     }
+    buffer.put(0b0)
     return buffer.position(0)
 }
 

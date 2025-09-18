@@ -43,7 +43,7 @@ abstract class ResourceRecord<T>(
 
     fun toBytes(): ByteArray {
         val buffer = if (usePointer) {
-            ByteBuffer.allocate(LABEL_POINTER_SIZE + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE + 1).apply {
+            ByteBuffer.allocate(LABEL_POINTER_SIZE + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE).apply {
 //            This value references the question's domain name - 1100_0000_1100_0000
 //            12 bytes into the message - where the header ends
 //            The first two bits indicate a pointer
@@ -52,7 +52,7 @@ abstract class ResourceRecord<T>(
             }
         } else {
             ByteBuffer.allocate(
-                name.toLabelBytes().array().size + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE + 1
+                name.toLabelBytes().array().size + getDataSizeInBytes() + BINARY_HEADER_BYTE_SIZE
             ).apply {
                 put(name.toLabelBytes())
             }
@@ -62,6 +62,7 @@ abstract class ResourceRecord<T>(
             putShort(resourceClass.code)
             putInt(ttl)
             putShort(rdlength)
+//            putShort(getDataSizeInBytes().toShort())
             put(getDataAsByteArray())
         }.array()
     }

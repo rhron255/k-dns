@@ -3,6 +3,7 @@ package rhron255.projects.k_dns.protocol.resource_records
 import rhron255.projects.k_dns.protocol.RecordClass
 import rhron255.projects.k_dns.protocol.RecordType
 import rhron255.projects.k_dns.utils.readDomainName
+import rhron255.projects.k_dns.utils.toLabelBytes
 import java.nio.ByteBuffer
 
 class CanonicalNameAliasResource(
@@ -37,11 +38,11 @@ class CanonicalNameAliasResource(
     }
 
     override fun getDataSizeInBytes(): Int {
-        TODO("Not yet implemented")
+        return rdata[0].toLabelBytes().array().size
     }
 
     override fun getDataAsByteArray(): ByteArray {
-        TODO("Not yet implemented")
+        return rdata[0].toLabelBytes().array()
     }
 
     override fun copy(
